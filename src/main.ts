@@ -1,101 +1,79 @@
-import { Application, Router } from "./deps.ts";
-import { generateOpenAPI } from "./lib/generate-openapi.ts";
-import { getHealth } from "./routes/health/health.routes.ts";
-import { createUser } from "./routes/users/users.routes.ts";
+// Import Express and Scalar
+import { express, apiReference } from "./deps.ts";
+import healthRouter, { healthApiSpec } from "./routes/health/health.routes.ts";
+import tasksRouter, { tasksApiSpec } from "./routes/tasks/tasks.routes.ts";
 
-const app = new Application();
-const router = new Router();
+// Get port from environment variable or default to 8000
+const port = Deno.env.get("PORT") ? parseInt(Deno.env.get("PORT")!) : 8000;
+const host = Deno.env.get("HOST") || "http://localhost:8000";
+const env = Deno.env.get("NODE_ENV") || "development";
 
-// Configure routes
-const routes = [getHealth, createUser];
+const app = express();
 
-// Register route handlers
-routes.forEach((route) => {
-  switch (route.method) {
-    case "get":
-      router.get(route.path, route.handler);
-      break;
-    case "post":
-      router.post(route.path, route.handler);
-      break;
-    case "put":
-      router.put(route.path, route.handler);
-      break;
-    case "delete":
-      router.delete(route.path, route.handler);
-      break;
-    case "patch":
-      router.patch(route.path, route.handler);
-      break;
-  }
-});
+// Configure middleware
+app.use(express.json());
+
+// Mount routers
+app.use(healthRouter);
+app.use(tasksRouter);
 
 // OpenAPI configuration
-const swaggerOptions = {
+const openApiSpec = {
+  openapi: "3.0.0",
   info: {
     title: "Auth API",
     version: "1.0.0",
-    description: "A simple REST API built with Deno and Oak",
+    description: "A simple REST API built with Deno and Express",
   },
-  servers: [
-    {
-      url: "http://localhost:8000",
-      description: "Local Development Server",
-    },
-  ],
+  servers: env === "development" 
+    ? [
+        {
+          url: "http://localhost:8000",
+          description: "Local Development Server",
+        }
+      ]
+    : [
+        {
+          url: host,
+          description: "Production Server",
+        }
+      ],
   tags: [
     {
       name: "Health",
       description: "Health check endpoints",
     },
     {
-      name: "Users",
-      description: "User management endpoints",
+      name: "Tasks",
+      description: "Task management endpoints",
     },
   ],
+  paths: {
+    ...healthApiSpec,
+    ...tasksApiSpec,
+  },
 };
 
-// Generate OpenAPI documentation
-const openApiDoc = generateOpenAPI({
-  ...swaggerOptions,
-  routes,
+// Serve OpenAPI spec
+app.get("/api-docs/json", (_req, res) => {
+  res.json(openApiSpec);
 });
 
-// Serve OpenAPI JSON
-router.get("/api-docs/json", (ctx) => {
-  ctx.response.headers.set("Content-Type", "application/json");
-  ctx.response.body = openApiDoc;
+// Serve API Reference UI using Scalar
+app.use(
+  "/api-docs",
+  apiReference({
+    spec: {
+      url: "/api-docs/json",
+    },
+    theme: "default",
+    layout: "classic",
+  })
+);
+
+// Start the server
+app.listen(port, () => {
+  const baseUrl = env === "development" ? `http://localhost:${port}` : host;
+  console.log("\x1b[32m%s\x1b[0m", `✨ Server running at ${baseUrl}`);
+  console.log("\x1b[36m%s\x1b[0m", `📚 API Documentation available at ${baseUrl}/api-docs`);
 });
-
-// Serve API Reference UI
-router.get("/api-docs", (ctx) => {
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>API Documentation</title>
-  <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-</head>
-<body>
-  <script type="module">
-    const ref = document.createElement('scalar-api-reference');
-    ref.setAttribute('spec-url', '/api-docs/json');
-    document.body.appendChild(ref);
-  </script>
-</body>
-</html>`;
-
-  ctx.response.headers.set("Content-Type", "text/html");
-  ctx.response.body = html;
-});
-
-app.use(router.routes());
-app.use(router.allowedMethods());
-
-// Get port from environment variable or default to 8000
-const port = Deno.env.get("PORT") ? parseInt(Deno.env.get("PORT")!) : 8000;
-
-console.log(`Server running at http://localhost:${port}`);
-console.log(`API Documentation available at http://localhost:${port}/api-docs`);
-await app.listen({ port });

@@ -1,93 +1,74 @@
-import { z } from "../deps.ts";
-import { Context } from "../deps.ts";
+import { Context } from "hono";
 
-export interface OpenAPIRouteConfig<
-  T extends z.ZodType,
-  P extends z.ZodType = z.ZodType,
-  Q extends z.ZodType = z.ZodType,
-  B extends z.ZodType = z.ZodType
-> {
+export interface Route {
+  method: keyof OpenAPIPath[string];
   path: string;
-  method: "get" | "post" | "put" | "delete" | "patch";
-  tags?: string[];
-  summary?: string;
-  description?: string;
-  params?: P;
-  query?: Q;
-  body?: B;
-  response: T;
-  handler: (ctx: Context) => Promise<void> | void;
+  handler: (c: Context) => Response | Promise<Response>;
 }
 
-export interface OpenAPIRoute<
-  T extends z.ZodType,
-  P extends z.ZodType = z.ZodType,
-  Q extends z.ZodType = z.ZodType,
-  B extends z.ZodType = z.ZodType
-> extends OpenAPIRouteConfig<T, P, Q, B> {
-  schema: {
-    params?: P;
-    query?: Q;
-    body?: B;
-    response: T;
-  };
-}
-
+// OpenAPI types
 export type OpenAPIPath = {
-  get?: OpenAPIOperation;
-  post?: OpenAPIOperation;
-  put?: OpenAPIOperation;
-  delete?: OpenAPIOperation;
-  patch?: OpenAPIOperation;
+  [path: string]: {
+    get?: OpenAPIOperation;
+    post?: OpenAPIOperation;
+    put?: OpenAPIOperation;
+    delete?: OpenAPIOperation;
+    patch?: OpenAPIOperation;
+  };
 };
 
 export type OpenAPIOperation = {
-  tags?: string[];
-  summary?: string;
+  tags: string[];
+  summary: string;
   description?: string;
-  parameters?: OpenAPIParameter[];
-  requestBody?: OpenAPIRequestBody;
-  responses: Record<string, OpenAPIResponse>;
-};
-
-export type OpenAPIParameter = {
-  name: string;
-  in: "path" | "query";
-  required?: boolean;
-  schema: OpenAPISchema;
-};
-
-export type OpenAPIRequestBody = {
-  required?: boolean;
-  content: {
-    "application/json": {
-      schema: OpenAPISchema;
+  requestBody?: {
+    required?: boolean;
+    content: {
+      [contentType: string]: {
+        schema: OpenAPISchema;
+        examples?: {
+          [name: string]: {
+            value: unknown;
+            summary?: string;
+          };
+        };
+      };
     };
   };
-};
-
-export type OpenAPIResponse = {
-  description: string;
-  content?: {
-    "application/json": {
-      schema: OpenAPISchema;
+  responses: {
+    [statusCode: string]: {
+      description: string;
+      content?: {
+        [contentType: string]: {
+          schema: OpenAPISchema;
+          examples?: {
+            [name: string]: {
+              value: unknown;
+              summary?: string;
+            };
+          };
+        };
+      };
     };
   };
 };
 
 export type OpenAPISchema = {
-  type: "object" | "string" | "number" | "boolean" | "array";
-  properties?: Record<string, OpenAPISchema>;
+  type: string;
+  properties?: Record<string, OpenAPISchemaProperty>;
   required?: string[];
   items?: OpenAPISchema;
+  enum?: string[];
+  nullable?: boolean;
   format?: string;
 };
 
-export interface OpenAPIConfig {
-  info: {
-    title: string;
-    version: string;
-    description?: string;
-  };
-  routes: OpenAPIRoute<z.ZodType, z.ZodType, z.ZodType, z.ZodType>[];
-}
+export type OpenAPISchemaProperty = {
+  type: string;
+  description?: string;
+  example?: unknown;
+  enum?: string[];
+  nullable?: boolean;
+  format?: string;
+  items?: OpenAPISchema;
+};

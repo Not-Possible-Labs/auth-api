@@ -1,44 +1,40 @@
+import { Request, Response } from "../../deps.ts";
+import { Router } from "npm:express@4";
 import { z } from "../../deps.ts";
-import { Context } from "../../deps.ts";
-import { createRoute } from "../../lib/create-route.ts";
+import { tasksApiSpec } from "./tasks.api.ts";
+
+const router = Router();
 
 const createTaskSchema = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
   status: z.enum(["pending", "in_progress", "completed"]),
   priority: z.enum(["low", "medium", "high"]).optional(),
 });
 
-export const createTask = createRoute({
-  path: "/tasks",
-  method: "post",
-  tags: ["Tasks"],
-  summary: "Create a new task",
-  description: "Creates a new task with the provided details",
-  body: createTaskSchema,
-  response: z.object({
-    id: z.string(),
-    title: z.string(),
-    description: z.string(),
-    status: z.enum(["pending", "in_progress", "completed"]),
-    priority: z.enum(["low", "medium", "high"]).optional(),
-    createdAt: z.string().datetime(),
-  }),
-  handler: async (ctx: Context) => {
-    const body = await ctx.request.body({ type: "json" }).value;
-    const result = createTaskSchema.safeParse(body);
+router.post("/tasks", (req: Request, res: Response) => {
+  try {
+    const result = createTaskSchema.safeParse(req.body);
 
     if (!result.success) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: "Invalid input" };
-      return;
+      return res.status(400).json({
+        error: "Invalid request body",
+        details: result.error.errors,
+      });
     }
 
-    ctx.response.status = 201;
-    ctx.response.body = {
+    // For now, just echo back the task
+    return res.status(201).json({
       id: crypto.randomUUID(),
       ...result.data,
       createdAt: new Date().toISOString(),
-    };
-  },
+    });
+  } catch (_error) {
+    return res.status(400).json({
+      error: "Invalid JSON",
+    });
+  }
 });
+
+export { tasksApiSpec };
+export default router;

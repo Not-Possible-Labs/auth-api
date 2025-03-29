@@ -1,22 +1,15 @@
-import { z } from "../../deps.ts";
-import { createRoute } from "../../lib/create-route.ts";
+import { Router } from "npm:express@4";
+import { Request, Response } from "../../deps.ts";
+import { healthApiSpec } from "./health.api.ts";
 
-const healthResponseSchema = z.object({
-  status: z.string(),
-  timestamp: z.string().datetime(),
+const router = Router();
+
+router.get("/health", (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-export const getHealth = createRoute({
-  path: "/healthcheck",
-  method: "get",
-  tags: ["Health"],
-  summary: "Health check endpoint",
-  description: "Returns the current health status of the API",
-  response: healthResponseSchema,
-  handler: (ctx) => {
-    ctx.response.body = {
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-    };
-  },
-});
+export { healthApiSpec };
+export default router;
