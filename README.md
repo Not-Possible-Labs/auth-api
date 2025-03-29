@@ -107,10 +107,10 @@ The project uses TypeScript with strict type checking:
 
 ## Environment Variables
 
-| Variable    | Description           | Default     |
+| Variable    | Description        | Default     |
 |-------------|--------------------|-------------|
 | PORT        | Server port        | 8000        |
-| NODE_ENV    | Environment       | development |
-| HOST        | Production host   | -           |
-| LOG_LEVEL   | Logging level     | debug       |
+| NODE_ENV    | Environment        | development |
+| HOST        | Production host    | -           |
+| LOG_LEVEL   | Logging level      | debug       |
 | DATABASE_URL| Database connection| file:dev.db |
