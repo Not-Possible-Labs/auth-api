@@ -1,7 +1,7 @@
 import { Request, Response } from "../../deps.ts";
 import { Router } from "npm:express@4";
 import { z } from "../../deps.ts";
-import { tasksApiSpec } from "./tasks.api.ts";
+import type { PaginatedResponse, PaginationParams } from "../../lib/types.ts";
 
 const router = Router();
 
@@ -36,5 +36,52 @@ router.post("/tasks", (req: Request, res: Response) => {
   }
 });
 
-export { tasksApiSpec };
-export default router;
+// Zod schema for task
+const taskSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  description: z.string().optional(),
+  status: z.enum(["pending", "in_progress", "completed"]),
+  priority: z.enum(["low", "medium", "high"]).optional(),
+  createdAt: z.string().datetime(),
+});
+
+type Task = z.infer<typeof taskSchema>;
+
+// Mock data for demonstration
+const mockTasks: Task[] = Array.from({ length: 50 }, (_, i) => ({
+  id: crypto.randomUUID(),
+  title: `Task ${i + 1}`,
+  description: `Description for task ${i + 1}`,
+  status: ["pending", "in_progress", "completed"][Math.floor(Math.random() * 3)] as Task["status"],
+  priority: ["low", "medium", "high"][Math.floor(Math.random() * 3)] as Task["priority"],
+  createdAt: new Date().toISOString(),
+}));
+
+router.get("/tasks", (req: Request<{}, {}, {}, PaginationParams>, res: Response) => {
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 10));
+
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const totalRecords = mockTasks.length;
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  const paginatedTasks = mockTasks.slice(startIndex, endIndex);
+
+  const response: PaginatedResponse<Task> = {
+    data: paginatedTasks,
+    pagination: {
+      total_records: totalRecords,
+      current_page: page,
+      total_pages: totalPages,
+      next_page: page < totalPages ? page + 1 : null,
+      prev_page: page > 1 ? page - 1 : null,
+      has_more: page < totalPages,
+    },
+  };
+
+  res.json(response);
+});
+
+export const tasksRouter = router;

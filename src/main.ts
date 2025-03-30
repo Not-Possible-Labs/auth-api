@@ -1,7 +1,9 @@
 // Import Express and Scalar
-import { express, apiReference } from "./deps.ts";
+import { express } from "./deps.ts";
 import healthRouter, { healthApiSpec } from "./routes/health/health.routes.ts";
-import tasksRouter, { tasksApiSpec } from "./routes/tasks/tasks.routes.ts";
+import { tasksRouter } from "./routes/tasks/tasks.routes.ts";
+import { tasksApiSpec } from "./routes/tasks/tasks.api.ts";
+import { apiReference } from "@scalar/express-api-reference";
 
 // Get port from environment variable or default to 8000
 const port = Deno.env.get("PORT") ? parseInt(Deno.env.get("PORT")!) : 8000;
@@ -25,19 +27,20 @@ const openApiSpec = {
     version: "1.0.0",
     description: "A simple REST API built with Deno and Express",
   },
-  servers: env === "development" 
-    ? [
-        {
-          url: "http://localhost:8000",
-          description: "Local Development Server",
-        }
-      ]
-    : [
-        {
-          url: host,
-          description: "Production Server",
-        }
-      ],
+  servers:
+    env === "development"
+      ? [
+          {
+            url: "http://localhost:8000",
+            description: "Local Development Server",
+          },
+        ]
+      : [
+          {
+            url: host,
+            description: "Production Server",
+          },
+        ],
   tags: [
     {
       name: "Health",
@@ -59,7 +62,6 @@ app.get("/api-docs/json", (_req, res) => {
   res.json(openApiSpec);
 });
 
-// Serve API Reference UI using Scalar
 app.use(
   "/api-docs",
   apiReference({

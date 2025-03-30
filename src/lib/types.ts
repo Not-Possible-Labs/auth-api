@@ -1,9 +1,9 @@
-import { Context } from "hono";
+import type { Request, Response } from "../deps.ts";
 
 export interface Route {
   method: keyof OpenAPIPath[string];
   path: string;
-  handler: (c: Context) => Response | Promise<Response>;
+  handler: (req: Request, res: Response) => void | Promise<void>;
 }
 
 // OpenAPI types
@@ -21,54 +21,70 @@ export type OpenAPIOperation = {
   tags: string[];
   summary: string;
   description?: string;
+  parameters?: OpenAPIParameter[];
   requestBody?: {
     required?: boolean;
     content: {
-      [contentType: string]: {
-        schema: OpenAPISchema;
-        examples?: {
-          [name: string]: {
-            value: unknown;
-            summary?: string;
-          };
-        };
-      };
+      [contentType: string]: OpenAPIContent;
     };
   };
   responses: {
     [statusCode: string]: {
       description: string;
       content?: {
-        [contentType: string]: {
-          schema: OpenAPISchema;
-          examples?: {
-            [name: string]: {
-              value: unknown;
-              summary?: string;
-            };
-          };
-        };
+        [contentType: string]: OpenAPIContent;
       };
     };
   };
 };
 
-export type OpenAPISchema = {
-  type: string;
-  properties?: Record<string, OpenAPISchemaProperty>;
-  required?: string[];
-  items?: OpenAPISchema;
-  enum?: string[];
-  nullable?: boolean;
-  format?: string;
+export type OpenAPIContent = {
+  schema: OpenAPISchema;
+  examples?: {
+    [name: string]: {
+      value: unknown;
+      summary?: string;
+    };
+  };
 };
 
-export type OpenAPISchemaProperty = {
-  type: string;
+export type OpenAPIParameter = {
+  name: string;
+  in: "query" | "path" | "header" | "cookie";
   description?: string;
-  example?: unknown;
-  enum?: string[];
-  nullable?: boolean;
-  format?: string;
-  items?: OpenAPISchema;
+  required?: boolean;
+  schema: OpenAPISchema;
 };
+
+export type OpenAPISchema = {
+  type: string;
+  format?: string;
+  nullable?: boolean;
+  enum?: string[];
+  items?: OpenAPISchema;
+  properties?: {
+    [key: string]: OpenAPISchema;
+  };
+  required?: string[];
+  description?: string;
+};
+
+// Pagination types
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginationMeta {
+  total_records: number;
+  current_page: number;
+  total_pages: number;
+  next_page: number | null;
+  prev_page: number | null;
+  has_more: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: PaginationMeta;
+}
