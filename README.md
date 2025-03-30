@@ -2,6 +2,24 @@
 
 A simple REST API built with Deno and Express.
 
+## Architecture
+
+```mermaid
+graph TD;
+    A[Client Apps] -->|Communicates with| B[Auth Server];
+    B -->|Uses| C[Prisma ORM];
+    C -->|Connects to| D[Postgres Database];
+    A -->|Includes| E[admin-ui];
+    A -->|Includes| F[platform-ui];
+    B -->|Implements| G[better-auth];
+```
+
+The architecture diagram above illustrates the flow of communication and the components involved in the authentication system:
+- **Client Apps**: Consists of `admin-ui` and `platform-ui` that interact with the Auth Server.
+- **Auth Server**: Implements `better-auth` for authentication and authorization.
+- **Prisma ORM**: Used by the Auth Server to interact with the Postgres Database.
+- **Postgres Database**: Stores user data and authentication information.
+
 ## Features
 
 - Express-based REST API
@@ -224,20 +242,4 @@ router.get("/tasks", (req: Request<{}, {}, {}, PaginationParams>, res: Response)
 });
 ```
 
-## Architecture
 
-```mermaid
-graph TD;
-    A[Client Apps] -->|Communicates with| B[Auth Server];
-    B -->|Uses| C[Prisma ORM];
-    C -->|Connects to| D[Postgres Database];
-    A -->|Includes| E[admin-ui];
-    A -->|Includes| F[platform-ui];
-    B -->|Implements| G[better-auth];
-```
-
-The architecture diagram above illustrates the flow of communication and the components involved in the authentication system:
-- **Client Apps**: Consists of `admin-ui` and `platform-ui` that interact with the Auth Server.
-- **Auth Server**: Implements `better-auth` for authentication and authorization.
-- **Prisma ORM**: Used by the Auth Server to interact with the Postgres Database.
-- **Postgres Database**: Stores user data and authentication information.
