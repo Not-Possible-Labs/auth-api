@@ -4,6 +4,7 @@ import healthRouter, { healthApiSpec } from "./routes/health/health.routes.ts";
 import { tasksRouter } from "./routes/tasks/tasks.routes.ts";
 import { tasksApiSpec } from "./routes/tasks/tasks.api.ts";
 import { apiReference } from "@scalar/express-api-reference";
+import { initDatabase } from "./lib/check-db-connection.ts";
 //import { swaggerDoc } from "https://deno.land/x/deno_swagger_doc@releavev2.0.1/mod.ts";
 
 // Get port from environment variable or default to 8000
@@ -15,6 +16,11 @@ const app = express();
 
 // Configure middleware
 app.use(express.json());
+
+// Root route redirect to API documentation
+app.get("/", (_req, res) => {
+  res.redirect("/api-docs");
+});
 
 // Mount routers
 app.use(healthRouter);
@@ -31,17 +37,17 @@ const openApiSpec = {
   servers:
     env === "dev"
       ? [
-          {
-            url: "http://localhost:8000",
-            description: "Local Dev Server",
-          },
-        ]
+        {
+          url: "http://localhost:8000",
+          description: "Local Dev Server",
+        },
+      ]
       : [
-          {
-            url: host,
-            description: "Production Server",
-          },
-        ],
+        {
+          url: host,
+          description: "Production Server",
+        },
+      ],
   tags: [
     {
       name: "Health",
@@ -97,9 +103,21 @@ const swaggerUIOptions = {
 app.use("/swagger-docs", serve, setup(openApiSpec, swaggerUIOptions));
 
 // Start the server
-app.listen(port, () => {
-  const baseUrl = env === "dev" ? `http://localhost:${port}` : host;
-  console.log("\x1b[32m%s\x1b[0m", `✨ Server running at ${baseUrl}`);
-  console.log("\x1b[36m%s\x1b[0m", `📚 API Documentation available at ${baseUrl}/api-docs`);
-  console.log("\x1b[36m%s\x1b[0m", `📚 Swagger UI available at ${baseUrl}/swagger-docs`);
-});
+const startServer = async () => {
+  try {
+    // Initialize database connection
+    await initDatabase();
+
+    app.listen(port, () => {
+      const baseUrl = env === "dev" ? `http://localhost:${port}` : host;
+      console.log("\x1b[32m%s\x1b[0m", `✨ Server running at ${baseUrl}`);
+      console.log("\x1b[36m%s\x1b[0m", `📚 API Documentation available at ${baseUrl}/api-docs`);
+      console.log("\x1b[36m%s\x1b[0m", `📚 Swagger UI available at ${baseUrl}/swagger-docs`);
+    });
+  } catch (error) {
+    console.error("\x1b[31m%s\x1b[0m", "Failed to start server:", error);
+    Deno.exit(1);
+  }
+};
+
+startServer();

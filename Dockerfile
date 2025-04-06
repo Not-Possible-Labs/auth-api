@@ -2,8 +2,11 @@ FROM public.ecr.aws/docker/library/ubuntu:22.04
 COPY --from=denoland/deno:bin-2.2.6 /deno /usr/local/bin/deno
 
 # The port that your application listens to.
-ENV PORT=8000
-EXPOSE 8000
+ENV PORT=80
+ENV NODE_ENV="dev"
+ENV DATABASE_URL="postgresql://postgres:R8D6Fy3csyg@postgres.dev.notpossiblelabs.com:5432/postgres"
+ENV HOST="http://localhost:80"
+EXPOSE 80
 
 WORKDIR /app
 
@@ -12,10 +15,15 @@ WORKDIR /app
 COPY src/deps.ts .
 RUN deno install --entrypoint deps.ts
 
+
 # These steps will be re-run upon each file change in your working directory:
 COPY . .
+
+# Generate Prisma client
+RUN deno run --allow-scripts -A npm:prisma@latest generate --no-hints
+
 # Compile the main app so that it doesn't need to be compiled each startup/entry.
 RUN deno cache src/main.ts
 
 # Start the application
-CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-env", "src/main.ts"]
+CMD ["deno", "run", "--allow-all", "src/main.ts"]
