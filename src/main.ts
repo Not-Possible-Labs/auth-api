@@ -33,7 +33,7 @@ const openApiSpec = {
       ? [
           {
             url: "http://localhost:8000",
-            description: "Local dev Server",
+            description: "Local Dev Server",
           },
         ]
       : [
