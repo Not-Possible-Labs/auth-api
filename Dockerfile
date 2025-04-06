@@ -1,10 +1,7 @@
 # Stage 1: Node.js for Prisma
-FROM public.ecr.aws/docker/library/node:22.13-alpine as node-base
-WORKDIR /app
-COPY . .
+FROM public.ecr.aws/docker/library/node:18-slim
 
-# Stage 2: Final stage
-FROM public.ecr.aws/docker/library/ubuntu:22.04
+# Install Deno
 COPY --from=denoland/deno:bin-2.2.6 /deno /usr/local/bin/deno
 
 # The port that your application listens to.
