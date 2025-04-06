@@ -4,7 +4,7 @@ import { healthApiSpec } from "./health.api.ts";
 
 const router = Router();
 
-router.get("/health", (_req: Request, res: Response) => {
+router.get("/healthcheck", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),

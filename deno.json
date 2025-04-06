@@ -2,7 +2,8 @@
   "nodeModulesDir": "auto",
   "tasks": {
     "dev": "deno run --allow-import --allow-net --allow-env --allow-read src/main.ts",
-    "start": "deno run --allow-import --allow-net --allow-env --allow-read src/main.ts"
+    "start": "deno run --allow-import --allow-net --allow-env --allow-read src/main.ts",
+    "watch": "deno run --watch --allow-import --allow-net --allow-env --allow-read src/main.ts"
   },
   "imports": {
     "express": "npm:express@4",
