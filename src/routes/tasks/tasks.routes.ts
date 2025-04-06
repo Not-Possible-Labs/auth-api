@@ -2,6 +2,7 @@ import { Request, Response } from "../../deps.ts";
 import { Router } from "npm:express@4";
 import { z } from "../../deps.ts";
 import type { PaginatedResponse, PaginationParams } from "../../lib/types.ts";
+import { checkApiKey } from "../../lib/check-api-key.ts";
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const createTaskSchema = z.object({
   priority: z.enum(["low", "medium", "high"]).optional(),
 });
 
-router.post("/tasks", (req: Request, res: Response) => {
+router.post("/tasks", checkApiKey, (req: Request, res: Response) => {
   try {
     const result = createTaskSchema.safeParse(req.body);
 
@@ -58,7 +59,7 @@ const mockTasks: Task[] = Array.from({ length: 50 }, (_, i) => ({
   createdAt: new Date().toISOString(),
 }));
 
-router.get("/tasks", (req: Request<{}, {}, {}, PaginationParams>, res: Response) => {
+router.get("/tasks", checkApiKey, (req: Request<{}, {}, {}, PaginationParams>, res: Response) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 10));
 

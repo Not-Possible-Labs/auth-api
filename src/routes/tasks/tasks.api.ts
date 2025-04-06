@@ -1,11 +1,21 @@
-import type { OpenAPIPath } from "../../lib/types.ts";
+import type { OpenAPIPath, OpenAPIDocument } from "../../lib/types.ts";
 
 const TasksGetRoute: OpenAPIPath = {
   "/tasks": {
     get: {
       tags: ["Tasks"],
       summary: "Get paginated list of tasks",
+      security: [{ "apiKey": [] }],
       parameters: [
+        {
+          name: "api-key",
+          in: "header",
+          description: "API key for authentication",
+          required: true,
+          schema: {
+            type: "string"
+          }
+        },
         {
           name: "page",
           in: "query",
@@ -80,6 +90,18 @@ const TasksPostRoute: OpenAPIPath = {
     post: {
       tags: ["Tasks"],
       summary: "Create a new task",
+      security: [{ "apiKey": [] }],
+      parameters: [
+        {
+          name: "api-key",
+          in: "header",
+          description: "API key for authentication",
+          required: true,
+          schema: {
+            type: "string"
+          }
+        }
+      ],
       description: "Creates a new task with the provided details",
       requestBody: {
         required: true,
@@ -195,9 +217,23 @@ const TasksPostRoute: OpenAPIPath = {
 };
 
 // Combine all operations into a single API spec
-export const tasksApiSpec: OpenAPIPath = {
-  "/tasks": {
-    ...TasksGetRoute["/tasks"],
-    ...TasksPostRoute["/tasks"],
+const securitySchemes = {
+  apiKey: {
+    type: "apiKey",
+    name: "api-key",
+    in: "header",
+    description: "API key for authentication. Can be provided via 'api-key' header or 'Authorization: APIKey <key>' header"
+  }
+};
+
+export const tasksApiSpec: OpenAPIDocument = {
+  paths: {
+    "/tasks": {
+      ...TasksGetRoute["/tasks"],
+      ...TasksPostRoute["/tasks"]
+    }
   },
+  components: {
+    securitySchemes
+  }
 };

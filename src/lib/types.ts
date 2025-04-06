@@ -7,6 +7,30 @@ export interface Route {
 }
 
 // OpenAPI types
+export type OpenAPIPathItem = {
+  get?: OpenAPIOperation;
+  post?: OpenAPIOperation;
+  put?: OpenAPIOperation;
+  delete?: OpenAPIOperation;
+  patch?: OpenAPIOperation;
+};
+
+export type OpenAPIDocument = {
+  paths: {
+    [path: string]: OpenAPIPathItem;
+  };
+  components?: {
+    securitySchemes: {
+      [key: string]: {
+        type: string;
+        name: string;
+        in: string;
+        description?: string;
+      };
+    };
+  };
+};
+
 export type OpenAPIPath = {
   [path: string]: {
     get?: OpenAPIOperation;
@@ -21,6 +45,7 @@ export type OpenAPIOperation = {
   tags: string[];
   summary: string;
   description?: string;
+  security?: { [key: string]: string[] }[];
   parameters?: OpenAPIParameter[];
   requestBody?: {
     required?: boolean;

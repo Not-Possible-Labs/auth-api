@@ -58,10 +58,20 @@ const openApiSpec = {
       description: "Task management endpoints",
     },
   ],
+  components: {
+    securitySchemes: {
+      apiKey: {
+        type: "apiKey",
+        name: "api-key",
+        in: "header",
+        description: "API key for authentication. Can be provided via 'api-key' header or 'Authorization: APIKey <key>' header"
+      }
+    }
+  },
   paths: {
     ...healthApiSpec,
-    ...tasksApiSpec,
-  },
+    ...tasksApiSpec.paths,
+  }
 };
 
 // Serve OpenAPI spec

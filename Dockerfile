@@ -3,9 +3,9 @@ COPY --from=denoland/deno:bin-2.2.6 /deno /usr/local/bin/deno
 
 # The port that your application listens to.
 ENV PORT=80
-ENV NODE_ENV="dev"
-ENV DATABASE_URL="postgresql://postgres:R8D6Fy3csyg@postgres.dev.notpossiblelabs.com:5432/postgres"
-ENV HOST="http://localhost:80"
+ENV NODE_ENV=""
+ENV DATABASE_URL=""
+ENV HOST=""
 EXPOSE 80
 
 WORKDIR /app
