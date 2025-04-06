@@ -1,7 +1,7 @@
 import type { OpenAPIPath } from "../../lib/types.ts";
 
 export const healthApiSpec: OpenAPIPath = {
-  "/health": {
+  "/healthcheck": {
     get: {
       tags: ["Health"],
       summary: "Health check endpoint",
@@ -13,7 +13,7 @@ export const healthApiSpec: OpenAPIPath = {
               schema: {
                 type: "object",
                 properties: {
-                  status: { type: "string", example: "ok" },
+                  status: { type: "string" },
                   timestamp: { type: "string", format: "date-time" },
                 },
               },
