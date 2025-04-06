@@ -41,7 +41,7 @@ The architecture diagram above illustrates the flow of communication and the com
 
 1. Clone the repository
 2. Copy `.env.example` to `.env` and update the values
-3. Run the development server:
+3. Run the dev server:
 
 ```bash
 deno task dev
@@ -52,7 +52,7 @@ The server will start on the configured port (default: 8000).
 ## API Documentation
 
 Interactive API documentation is available at:
-- Development: `http://localhost:8000/api-docs`
+- dev: `http://localhost:8000/api-docs`
 - Production: `https://auth-api.notpossiblelabs.com/api-docs`
 
 The raw OpenAPI specification is available at `/api-docs/json`.
@@ -150,7 +150,7 @@ The project uses TypeScript with strict type checking:
 | Variable    | Description        | Default     |
 |-------------|--------------------|-------------|
 | PORT        | Server port        | 8000        |
-| NODE_ENV    | Environment        | development |
+| NODE_ENV    | Environment        | dev |
 | HOST        | Production host    | -           |
 | LOG_LEVEL   | Logging level      | debug       |
 | DATABASE_URL| Database connection| file:dev.db |

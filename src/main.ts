@@ -4,12 +4,12 @@ import healthRouter, { healthApiSpec } from "./routes/health/health.routes.ts";
 import { tasksRouter } from "./routes/tasks/tasks.routes.ts";
 import { tasksApiSpec } from "./routes/tasks/tasks.api.ts";
 import { apiReference } from "@scalar/express-api-reference";
-import { swaggerDoc } from "https://deno.land/x/deno_swagger_doc@releavev2.0.1/mod.ts";
+//import { swaggerDoc } from "https://deno.land/x/deno_swagger_doc@releavev2.0.1/mod.ts";
 
 // Get port from environment variable or default to 8000
 const port = Deno.env.get("PORT") ? parseInt(Deno.env.get("PORT")!) : 8000;
 const host = Deno.env.get("HOST") || "http://localhost:8000";
-const env = Deno.env.get("NODE_ENV") || "development";
+const env = Deno.env.get("NODE_ENV") || "dev";
 
 const app = express();
 
@@ -29,19 +29,19 @@ const openApiSpec = {
     description: "A simple REST API built with Deno and Express",
   },
   servers:
-    env === "development"
+    env === "dev"
       ? [
-        {
-          url: "http://localhost:8000",
-          description: "Local Development Server",
-        },
-      ]
+          {
+            url: "http://localhost:8000",
+            description: "Local dev Server",
+          },
+        ]
       : [
-        {
-          url: host,
-          description: "Production Server",
-        },
-      ],
+          {
+            url: host,
+            description: "Production Server",
+          },
+        ],
   tags: [
     {
       name: "Health",
@@ -86,19 +86,19 @@ const swaggerUIOptions = {
     tryItOutEnabled: true,
     urls: [
       {
-        url: '/swagger.json',
-        name: 'API Documentation'
-      }
-    ]
-  }
+        url: "/swagger.json",
+        name: "API Documentation",
+      },
+    ],
+  },
 };
 
 // Serve Swagger UI at /swagger-docs
-app.use('/swagger-docs', serve, setup(openApiSpec, swaggerUIOptions));
+app.use("/swagger-docs", serve, setup(openApiSpec, swaggerUIOptions));
 
 // Start the server
 app.listen(port, () => {
-  const baseUrl = env === "development" ? `http://localhost:${port}` : host;
+  const baseUrl = env === "dev" ? `http://localhost:${port}` : host;
   console.log("\x1b[32m%s\x1b[0m", `✨ Server running at ${baseUrl}`);
   console.log("\x1b[36m%s\x1b[0m", `📚 API Documentation available at ${baseUrl}/api-docs`);
   console.log("\x1b[36m%s\x1b[0m", `📚 Swagger UI available at ${baseUrl}/swagger-docs`);
