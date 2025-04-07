@@ -1,5 +1,5 @@
 // Import Express and Scalar
-import { express, serve, setup } from "./deps.ts";
+import { express, serve, setup, morgan } from "./deps.ts";
 import healthRouter, { healthApiSpec } from "./routes/health/health.routes.ts";
 import { tasksRouter } from "./routes/tasks/tasks.routes.ts";
 import { tasksApiSpec } from "./routes/tasks/tasks.api.ts";
@@ -16,6 +16,7 @@ const app = express();
 
 // Configure middleware
 app.use(express.json());
+app.use(morgan("dev")); // Add request logging
 
 // Root route redirect to API documentation
 app.get("/", (_req, res) => {
