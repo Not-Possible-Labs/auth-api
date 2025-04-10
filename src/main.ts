@@ -45,7 +45,7 @@ const openApiSpec = {
       ]
       : [
         {
-          url: host,
+          url: "/",
           description: "Production Server",
         },
       ],
