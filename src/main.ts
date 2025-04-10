@@ -36,7 +36,7 @@ const openApiSpec = {
     description: "A simple REST API built with Deno and Express",
   },
   servers:
-    env === "dev"
+    env === "local"
       ? [
         {
           url: "http://localhost:8000",
