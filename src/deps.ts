@@ -13,3 +13,6 @@ export { serve, setup } from "npm:swagger-ui-express@5.0.1";
 
 // Zod
 export { z } from "npm:zod@3";
+
+// Better Auth
+export { betterAuth } from "npm:better-auth@1";

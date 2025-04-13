@@ -30,6 +30,31 @@ The architecture diagram above illustrates the flow of communication and the com
 - Health check endpoint
 - Task management endpoints with pagination
 
+## Using Prisma
+
+This project uses Prisma as its ORM for database operations. The Prisma client is already configured and can be imported in your code as follows:
+
+```typescript
+import { prisma } from '../../prisma/client.ts'
+```
+
+### Example Usage
+
+```typescript
+// Query all users
+const users = await prisma.user.findMany()
+
+// Create a new record
+const newUser = await prisma.user.create({
+  data: {
+    email: 'user@example.com',
+    name: 'John Doe'
+  }
+})
+```
+
+The Prisma client is initialized in `prisma/client.ts` and is ready to use throughout the application. The client is configured to work with the database specified in your environment variables (`DATABASE_URL`).
+
 ## Getting Started
 
 ### Prerequisites
