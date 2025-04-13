@@ -53,6 +53,15 @@ const newUser = await prisma.user.create({
 })
 ```
 
+## Useful Commands
+- `deno run --reload -A npm:prisma@latest init --db` - Creates a prisma directory containing a schema.prisma file for your database models
+- `deno run -A npm:prisma migrate dev --name init` - It creates a new SQL migration file for this migration & runs the SQL migration file against the database
+- `deno run -A npm:prisma@latest db push` - Pushes the latest schema changes to the database
+- `deno run -A npm:prisma@latest db pull` - Pulls the latest schema changes from the database
+- `deno run -A npm:prisma@latest db reset` - Resets the database
+- `deno run -A --env prisma/seed.ts` - Seeds the database
+- `deno run -A npm:prisma studio` - Opens the Prisma Studio
+
 The Prisma client is initialized in `prisma/client.ts` and is ready to use throughout the application. The client is configured to work with the database specified in your environment variables (`DATABASE_URL`).
 
 ## Getting Started
@@ -268,11 +277,3 @@ router.get("/tasks", (req: Request<{}, {}, {}, PaginationParams>, res: Response)
 ```
 
 
-## Useful Commands
-- `deno run --reload -A npm:prisma@latest init --db` - Creates a prisma directory containing a schema.prisma file for your database models
-- `deno run -A npm:prisma migrate dev --name init` - It creates a new SQL migration file for this migration & runs the SQL migration file against the database
-- `deno run -A npm:prisma@latest db push` - Pushes the latest schema changes to the database
-- `deno run -A npm:prisma@latest db pull` - Pulls the latest schema changes from the database
-- `deno run -A npm:prisma@latest db reset` - Resets the database
-- `deno run -A --env prisma/seed.ts` - Seeds the database
-- `deno run -A npm:prisma studio` - Opens the Prisma Studio
